@@ -1,0 +1,10 @@
+I'm thinking one page:
+-> Status of RPi
+    - 'Running' or 'Stopped'
+    - 'Current temp'
+    - 'Target temp'
+    - Timer info if state == 'Running'
+        + time left
+-> Ability to schedule a cook
+    - Time to start (Assumes today, so only time, no date)
+    - Duration

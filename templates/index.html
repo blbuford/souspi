@@ -1,1 +1,135 @@
-<h1>{{ device.getStatus() }}</h1>
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootswatch/4.1.3/superhero/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-u4BOm6DXWNW9DDMz3uKYKOOtsYm6pt8m8DxK2sVQ9RJVnWP8mjOIct/zzXkwobmN" crossorigin="anonymous">
+
+    <!-- Time Picker - Tempus Dominus -->
+
+
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css"
+          integrity="sha384-5sAR7xN1Nv6T6+dT2mhtzEpVJvfS3NScPQTrOxhwjIuvcA67KV2R5Jz6kr4abQsz" crossorigin="anonymous">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
+            integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+            crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
+            integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+            crossorigin="anonymous"></script>
+    <script type="text/javascript"
+            src="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.0.0-alpha14/js/tempusdominus-bootstrap-4.min.js"></script>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.0.0-alpha14/css/tempusdominus-bootstrap-4.min.css"/>
+    <title>Hello, world!</title>
+</head>
+<body>
+
+<div class="container">
+    <section id="status">
+
+        <div class="row">
+            <div class="col">
+                <h3>Status</h3>
+                <ul class="list-group">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Current state
+                        <span class="badge badge-info">{{ device.getStatus() }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Current Temperature
+                        <span class="badge badge-info">{{ device.getCurrentTemp() }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Target Temperature
+                        <span class="badge badge-info">{{ device.getTargetTemp() }}</span>
+                    </li>
+                    {% if device.getStatus() == 'running' %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Time remaining
+                        <span class="badge badge-info">{{ device.getTimer() }}</span>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+
+    </section>
+
+    <section id="scheduler" class="center-block">
+        <h3>Schedule Sous Vide</h3><br/>
+        <div class="row">
+            <div class="col">
+
+                <div class="form-group">
+                    <label class="form-control-label" for="datetimepicker-start">Start Time</label>
+                    <div class="input-group date" id="datetimepicker1" data-target-input="nearest">
+                        <input type="text" id="datetimepicker-start" class="form-control datetimepicker-input"
+                               data-target="#datetimepicker1"/>
+                        <div class="input-group-append" data-target="#datetimepicker1" data-toggle="datetimepicker">
+                            <div class="input-group-text"><i class="far fa-clock"></i></div>
+                        </div>
+                    </div>
+                </div>
+                <script type="text/javascript">
+            $.fn.datetimepicker.Constructor.Default = $.extend({}, $.fn.datetimepicker.Constructor.Default, {
+                    icons: {
+                        time: 'far fa-clock',
+                        date: 'far fa-calendar',
+                        up: 'fas fa-arrow-up',
+                        down: 'fas fa-arrow-down',
+                        previous: 'far fa-chevron-left',
+                        next: 'far fa-chevron-right',
+                        today: 'far fa-calendar-check-o',
+                        clear: 'far fa-trash',
+                        close: 'far fa-times'
+                    } });
+            $(function () {
+                $('#datetimepicker1').datetimepicker({
+                    format: 'LT'
+                });
+            });
+
+
+
+                </script>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <label class="form-control-label" for="datetimepicker-start">End Time</label>
+                    <div class="input-group date" id="datetimepicker2" data-target-input="nearest">
+                        <input type="text" id="datetimepicker-end" class="form-control datetimepicker-input"
+                               data-target="#datetimepicker2"/>
+                        <div class="input-group-append" data-target="#datetimepicker2" data-toggle="datetimepicker">
+                            <div class="input-group-text"><i class="far fa-clock"></i></div>
+                        </div>
+                    </div>
+                </div>
+                <script type="text/javascript">
+
+            $(function () {
+                $('#datetimepicker2').datetimepicker({
+                    format: 'LT'
+                });
+            });
+
+
+
+                </script>
+            </div>
+        </div>
+
+    </section>
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <!--<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+            integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+            crossorigin="anonymous"></script>-->
+</div>
+</body>
+</html>

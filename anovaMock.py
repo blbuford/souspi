@@ -80,7 +80,7 @@ class AnovaDevice():
     # -- Unmocked below --
     # Timer Methods
     def getTimer(self):
-        result = self.sendCommand("read timer")
+        result = 20.3 #self.sendCommand("read timer")
         return result
 
     def setTimer(self, time):
