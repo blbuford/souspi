@@ -8,3 +8,10 @@ I'm thinking one page:
 -> Ability to schedule a cook
     - Time to start (Assumes today, so only time, no date)
     - Duration
+
+TODO:
+-> If cook is scheduled show info on that (maybe instead of schedule):
+    - Time started
+    - Progress bar
+    - Time end
+    - Stop button?
