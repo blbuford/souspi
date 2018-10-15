@@ -26,12 +26,19 @@
             src="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.0.0-alpha14/js/tempusdominus-bootstrap-4.min.js"></script>
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.0.0-alpha14/css/tempusdominus-bootstrap-4.min.css"/>
-    <title>Hello, world!</title>
+    <title>SousPi</title>
 </head>
 <body>
 
 <div class="container">
-    <section id="status">
+    <header>
+        <div class="row">
+            <div class="col text-center">
+                <h1>SousPi</h1>
+            </div>
+        </div>
+    </header>
+    <section id="status" style="padding-bottom: 1em">
 
         <div class="row">
             <div class="col">
@@ -62,21 +69,22 @@
     </section>
 
     <section id="scheduler" class="center-block">
-        <h3>Schedule Sous Vide</h3><br/>
-        <div class="row">
-            <div class="col">
+        <h3>Schedule</h3><br/>
+        <form method="post" class="form">
+            <div class="row">
+                <div class="col">
 
-                <div class="form-group">
-                    <label class="form-control-label" for="datetimepicker-start">Start Time</label>
-                    <div class="input-group date" id="datetimepicker1" data-target-input="nearest">
-                        <input type="text" id="datetimepicker-start" class="form-control datetimepicker-input"
-                               data-target="#datetimepicker1"/>
-                        <div class="input-group-append" data-target="#datetimepicker1" data-toggle="datetimepicker">
-                            <div class="input-group-text"><i class="far fa-clock"></i></div>
+                    <div class="form-group">
+                        <label class="form-control-label" for="datetimepicker-start">Start Time</label>
+                        <div class="input-group date" id="datetimepicker1" data-target-input="nearest">
+                            <input type="text" id="datetimepicker-start" class="form-control datetimepicker-input"
+                                   data-target="#datetimepicker1" name="datetimepicker-start" required/>
+                            <div class="input-group-append" data-target="#datetimepicker1" data-toggle="datetimepicker">
+                                <div class="input-group-text"><i class="far fa-clock"></i></div>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <script type="text/javascript">
+                    <script type="text/javascript">
             $.fn.datetimepicker.Constructor.Default = $.extend({}, $.fn.datetimepicker.Constructor.Default, {
                     icons: {
                         time: 'far fa-clock',
@@ -97,20 +105,22 @@
 
 
 
-                </script>
-            </div>
-            <div class="col">
-                <div class="form-group">
-                    <label class="form-control-label" for="datetimepicker-start">End Time</label>
-                    <div class="input-group date" id="datetimepicker2" data-target-input="nearest">
-                        <input type="text" id="datetimepicker-end" class="form-control datetimepicker-input"
-                               data-target="#datetimepicker2"/>
-                        <div class="input-group-append" data-target="#datetimepicker2" data-toggle="datetimepicker">
-                            <div class="input-group-text"><i class="far fa-clock"></i></div>
+
+
+                    </script>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label class="form-control-label" for="datetimepicker-end">End Time</label>
+                        <div class="input-group date" id="datetimepicker2" data-target-input="nearest">
+                            <input type="text" id="datetimepicker-end" class="form-control datetimepicker-input"
+                                   data-target="#datetimepicker2" name="datetimepicker-end" required/>
+                            <div class="input-group-append" data-target="#datetimepicker2" data-toggle="datetimepicker">
+                                <div class="input-group-text"><i class="far fa-clock"></i></div>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <script type="text/javascript">
+                    <script type="text/javascript">
 
             $(function () {
                 $('#datetimepicker2').datetimepicker({
@@ -120,10 +130,53 @@
 
 
 
+
+
+                    </script>
+                </div>
+            </div>
+            <div class="row form-group">
+                <div class="col-md-10">
+                    <label class="form-control-label" for="targetTemperatureSelector">Target Temperature</label>
+                    <input class="custom-range" id="targetTemperatureSelector" type="range"
+                           min="32.0" max="210.0" step=".1" oninput="updateTextInput(this.value)" required
+                           name="temperatureSlider">
+                </div>
+                <div class="col-md-2">
+                    <div class="input-group mb-3 pt-3">
+                        <label for="temperatureInput" class="input-label"></label>
+                        <input id="temperatureInput" class="form-control" aria-label="Amount (to the nearest dollar)"
+                               type="text" oninput="updateSliderInput(this.value)" name="temperatureText">
+                        <div class="input-group-append">
+                            <span class="input-group-text">°F</span>
+                        </div>
+                    </div>
+                </div>
+                <script type="text/javascript">
+                    //$('#targetTemperatureSelector').focus(function() {
+                     //   $('#temperatureInput').val($('#targetTemperatureSelector').val());
+                    //});
+                    function updateTextInput(val) {
+                        document.getElementById('temperatureInput').value=val;
+                    }
+
+                    function updateSliderInput(val) {
+                        document.getElementById('targetTemperatureSelector').value=val;
+                    }
+                    var tempInput = document.getElementById("temperatureInput");
+                    var tempSlider = document.getElementById("targetTemperatureSelector");
+                    tempInput.value = tempSlider.value;
+
+
+
                 </script>
             </div>
-        </div>
-
+            <div class="row">
+                <div class="col form-group">
+                    <button type="submit" class="btn btn-success btn-lg btn-block">JimJam!</button>
+                </div>
+            </div>
+        </form>
     </section>
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->

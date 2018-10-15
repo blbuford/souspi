@@ -15,3 +15,10 @@ TODO:
     - Progress bar
     - Time end
     - Stop button?
+
+MISSING:
+Target temp on schedule
+Fault tolerance if the device disconnects. It rips the whole web server.
+
+Target temp:
+slider with input box beside it.

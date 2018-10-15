@@ -72,7 +72,9 @@ class AnovaDevice():
 
     def setTargetTemp(self, temp):
         self._targetTemp = temp
-        return "{}".format(self._targetTemp)
+        r = "{}".format(self._targetTemp)
+        print "setting target temp to {}".format(r)
+        return r
 
     def getCurrentTemp(self):
         return self._currentTemp

@@ -1,12 +1,12 @@
 from flask import Flask, render_template, request
-from anova import AnovaDevice
+from anovaMock import AnovaDevice
 from datetime import datetime, date
 import time
 from threading import Timer
 
 app = Flask(__name__)
 
-device = AnovaDevice('FF:FF:FF:FF:FF')
+device = AnovaDevice("78:A5:04:29:1E:C3")
 threads = []
 
 def thread_start_device():
@@ -32,6 +32,8 @@ def status():
     if request.method == 'POST':
         start_time = datetime.strptime(request.form['datetimepicker-start'], "%I:%M %p")
         end_time = datetime.strptime(request.form['datetimepicker-end'], "%I:%M %p")
+        target_text = request.form['temperatureText']
+        target_slider = request.form['temperatureSlider']
 
         start_normalized = datetime.combine(date.today(), start_time.time())
         end_normalized = datetime.combine(date.today(), end_time.time())
@@ -42,6 +44,8 @@ def status():
 
         start_delay = start_stamp - now_stamp
         end_delay = end_stamp - now_stamp
+
+        device.setTargetTemp(target_slider)
 
         start_thread = Timer(start_delay, thread_start_device)
         start_thread.setName('startDevice')
@@ -54,6 +58,7 @@ def status():
         threads.append(end_thread)
         end_thread.start()
         print "stop thread queued for {} seconds from now".format(end_delay)
+
 
         return render_template('index.html', device=device)
     else:
