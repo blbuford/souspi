@@ -1,4 +1,11 @@
+from bluepy.btle import BTLEException
+class Characteristic():
+    def write(self, txt):
+        raise BTLEException(BTLEException.DISCONNECTED, "Device disconnected")
+
+
 class AnovaDevice():
+
     def __init__(self, address):
         self.isConnected = False
         self.isRunning = False
@@ -29,9 +36,17 @@ class AnovaDevice():
             self.isConnected = False
 
     def sendCommand(self, command):
-        self.characteristic.write("{}\r".format(command))
+        try:
+            self.characteristic.write("{}\r".format(command))
+        except BTLEException as err:
+            if err.DISCONNECTED == 1:
+                self.connect()
+                self.characteristic.write("{}\r".format(command))
         _, result = self.read()
         return result.rstrip()
+
+    def _fsendCommand(self, command):
+        raise BTLEException(BTLEException.DISCONNECTED, "Device disconnected")
 
     def read(self):
         if self.device.waitForNotifications(1.0):

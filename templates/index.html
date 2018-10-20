@@ -36,20 +36,20 @@
                 <ul class="list-group">
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         Current state
-                        <span class="badge badge-info">{{ device.getStatus() }}</span>
+                        <span class="badge badge-info">{{ device['status'] }}</span>
                     </li>
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         Current Temperature
-                        <span class="badge badge-info">{{ device.getCurrentTemp() }}</span>
+                        <span class="badge badge-info">{{ device['CurrentTemp'] }}</span>
                     </li>
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         Target Temperature
-                        <span class="badge badge-info">{{ device.getTargetTemp() }}</span>
+                        <span class="badge badge-info">{{ device['TargetTemp'] }}</span>
                     </li>
-                    {% if device.getStatus() == 'running' %}
+                    {% if device['status'] == 'running' %}
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         Time remaining
-                        <span class="badge badge-info">{{ device.getTimer() }}</span>
+                        <span class="badge badge-info">{{ device['timer'] }}</span>
                     </li>
                     {% endif %}
                 </ul>
@@ -111,7 +111,7 @@
             </div>
             <div class="row">
                 <div class="col form-group">
-                    <button type="submit" class="btn btn-success btn-lg btn-block">JimJam!</button>
+                    <button type="submit" class="btn btn-success btn-lg btn-block">Schedule</button>
                 </div>
             </div>
         </form>

@@ -2,12 +2,36 @@ from flask import Flask, render_template, request
 from anovaMock import AnovaDevice
 from datetime import datetime, date
 import time
-from threading import Timer
+from threading import Timer, Thread
+from bluepy.btle import BTLEException
 
 app = Flask(__name__)
 
 device = AnovaDevice("78:A5:04:29:1E:C3")
 threads = []
+status_thread = None
+
+deviceInfo = {
+    'status': 'stopped',
+    'currentTemp': -1,
+    'targetTemp': -1,
+    'timer': -1
+}
+
+def statusThread():
+    global deviceInfo
+    while True:
+        try:
+            deviceInfo['status'] = device.getStatus()
+            deviceInfo['currentTemp'] = device.getCurrentTemp()
+            deviceInfo['targetTemp'] = device.getTargetTemp()
+            if deviceInfo['status'] == 'running':
+                deviceInfo['timer'] = device.getTimer()
+            print "Thread proc: ", deviceInfo['status'], deviceInfo['currentTemp'], deviceInfo['targetTemp'], deviceInfo['timer']
+        except Exception as err:
+            print err
+        time.sleep(30)
+
 
 def thread_start_device():
     print "starting device"
@@ -26,9 +50,15 @@ def thread_stop_device():
             threads.remove(threads[i])
             print threads
             break
-#device.start()
+
 @app.route('/', methods=['GET', 'POST'])
 def status():
+    global status_thread
+    global deviceInfo
+    if status_thread is None:
+        status_thread = Thread(target=statusThread)
+        status_thread.start()
+
     if request.method == 'POST':
         start_time = datetime.strptime(request.form['datetimepicker-start'], "%I:%M %p")
         end_time = datetime.strptime(request.form['datetimepicker-end'], "%I:%M %p")
@@ -47,6 +77,7 @@ def status():
 
         device.setTargetTemp(target_slider)
 
+
         start_thread = Timer(start_delay, thread_start_device)
         start_thread.setName('startDevice')
         threads.append(start_thread)
@@ -60,11 +91,13 @@ def status():
         print "stop thread queued for {} seconds from now".format(end_delay)
 
 
-        return render_template('index.html', device=device)
+        return render_template('index.html', device=deviceInfo)
     else:
 
-        return render_template('index.html', device=device)
+        return render_template('index.html', device=deviceInfo)
 
 
 if __name__ == "__main__":
+    status_thread = Thread( target=statusThread)
+    status_thread.start()
     app.run(host="0.0.0.0", port=8080)

@@ -17,8 +17,6 @@ TODO:
     - Stop button?
 
 MISSING:
-Target temp on schedule
 Fault tolerance if the device disconnects. It rips the whole web server.
-
-Target temp:
-slider with input box beside it.
+    - The issue happens once the device disconnects. it would be reasonable to have 3 retries 1 second apart on the
+      sendCommand function. If it fails, softfail, and let web app know, so it can react accordingly

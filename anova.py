@@ -7,7 +7,7 @@ Characteristic UUID: FFE1
 '''
 
 from bluepy import btle
-
+import time
 
 class AnovaDelegate(btle.DefaultDelegate):
 
@@ -28,11 +28,9 @@ class AnovaDevice():
         self.isConnected = False
         self.isRunning = False
         self.address = address
+        self.device = None
         self.connect()
         if self.isConnected:
-            self.device = self.device.withDelegate(AnovaDelegate())
-            self.service = self.device.getServiceByUUID("FFE0")
-            self.characteristic = self.service.getCharacteristics()[0]
             if 'running' in self.getStatus():
                 self.isRunning = True
         else:
@@ -41,7 +39,10 @@ class AnovaDevice():
     def connect(self):
         try:
             self.device = btle.Peripheral(self.address)
+            self.device = self.device.withDelegate(AnovaDelegate())
             self.isConnected = True
+            self.service = self.device.getServiceByUUID("FFE0")
+            self.characteristic = self.service.getCharacteristics()[0]
         except btle.BTLEException as err:
             print err
 
@@ -51,7 +52,14 @@ class AnovaDevice():
             self.isConnected = False
 
     def sendCommand(self, command):
-        self.characteristic.write("{}\r".format(command))
+        try:
+            self.characteristic.write("{}\r".format(command))
+        except btle.BTLEException as err:
+            if err.DISCONNECTED == 1:
+                self.attemptReconnect(err)
+                self.characteristic.write("{}\r".format(command))
+            else:
+                raise err
         _, result = self.read()
         return result.rstrip()
 
@@ -59,6 +67,21 @@ class AnovaDevice():
         if self.device.waitForNotifications(1.0):
             return self.device.delegate.getLastNotification()
         return None
+
+    def attemptReconnect(self, error):
+        self.isConnected = False
+
+        for i in range(3):
+            self.connect()
+
+            if not self.isConnected:
+                time.sleep(3)
+            else:
+                break
+        if not self.isConnected:
+            raise Exception("Unable to reconnect to device")
+
+
 
     # System and general methods
     def getStatus(self):
