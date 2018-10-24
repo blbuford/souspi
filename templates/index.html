@@ -40,11 +40,11 @@
                     </li>
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         Current Temperature
-                        <span class="badge badge-info">{{ device['CurrentTemp'] }}</span>
+                        <span class="badge badge-info">{{ device['currentTemp'] }}</span>
                     </li>
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         Target Temperature
-                        <span class="badge badge-info">{{ device['TargetTemp'] }}</span>
+                        <span class="badge badge-info">{{ device['targetTemp'] }}</span>
                     </li>
                     {% if device['status'] == 'running' %}
                     <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -60,7 +60,7 @@
 
     <section id="scheduler" class="center-block">
         <h3>Schedule</h3><br/>
-        <form method="post" class="form">
+        <form method="post" class="form" action="/schedule">
             <div class="row">
                 <div class="col">
 

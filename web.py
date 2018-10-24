@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for, logging
 from anovaMock import AnovaDevice
 from datetime import datetime, date
 import time
@@ -9,7 +9,6 @@ app = Flask(__name__)
 
 device = AnovaDevice("78:A5:04:29:1E:C3")
 threads = []
-status_thread = None
 
 deviceInfo = {
     'status': 'stopped',
@@ -17,20 +16,6 @@ deviceInfo = {
     'targetTemp': -1,
     'timer': -1
 }
-
-def statusThread():
-    global deviceInfo
-    while True:
-        try:
-            deviceInfo['status'] = device.getStatus()
-            deviceInfo['currentTemp'] = device.getCurrentTemp()
-            deviceInfo['targetTemp'] = device.getTargetTemp()
-            if deviceInfo['status'] == 'running':
-                deviceInfo['timer'] = device.getTimer()
-            print "Thread proc: ", deviceInfo['status'], deviceInfo['currentTemp'], deviceInfo['targetTemp'], deviceInfo['timer']
-        except Exception as err:
-            print err
-        time.sleep(30)
 
 
 def thread_start_device():
@@ -42,6 +27,7 @@ def thread_start_device():
             print threads
             break
 
+
 def thread_stop_device():
     print "stopping device"
     device.stop()
@@ -51,14 +37,22 @@ def thread_stop_device():
             print threads
             break
 
-@app.route('/', methods=['GET', 'POST'])
-def status():
-    global status_thread
-    global deviceInfo
-    if status_thread is None:
-        status_thread = Thread(target=statusThread)
-        status_thread.start()
 
+@app.route('/', methods=['GET'])
+def status():
+    try:
+        deviceInfo['status'] = device.getStatus()
+        deviceInfo['currentTemp'] = device.getCurrentTemp()
+        deviceInfo['targetTemp'] = device.getTargetTemp()
+        if deviceInfo['status'] == 'running':
+            deviceInfo['timer'] = device.getTimer()
+    except Exception as err:
+        print err
+    return render_template('index.html', device=deviceInfo)
+
+
+@app.route('/schedule', methods=['POST'])
+def schedule():
     if request.method == 'POST':
         start_time = datetime.strptime(request.form['datetimepicker-start'], "%I:%M %p")
         end_time = datetime.strptime(request.form['datetimepicker-end'], "%I:%M %p")
@@ -77,7 +71,6 @@ def status():
 
         device.setTargetTemp(target_slider)
 
-
         start_thread = Timer(start_delay, thread_start_device)
         start_thread.setName('startDevice')
         threads.append(start_thread)
@@ -90,14 +83,8 @@ def status():
         end_thread.start()
         print "stop thread queued for {} seconds from now".format(end_delay)
 
-
-        return render_template('index.html', device=deviceInfo)
-    else:
-
-        return render_template('index.html', device=deviceInfo)
+    return redirect(url_for("status"))
 
 
 if __name__ == "__main__":
-    status_thread = Thread( target=statusThread)
-    status_thread.start()
-    app.run(host="0.0.0.0", port=8080)
+    app.run(host="0.0.0.0", port=8080, debug=True)
