@@ -14,7 +14,13 @@ deviceInfo = {
     'status': 'stopped',
     'currentTemp': -1,
     'targetTemp': -1,
-    'timer': -1
+    'timer': -1,
+    'cookScheduled': False,
+    'cookStart': "",
+    'cookEnd': "",
+    'cookStartStamp': 0,
+    'cookEndStamp': 0,
+    'cookProgress': 0
 }
 
 
@@ -31,6 +37,7 @@ def thread_start_device():
 def thread_stop_device():
     print "stopping device"
     device.stop()
+    deviceInfo['cookScheduled'] = False
     for i in range(len(threads)):
         if threads[i].getName() == 'stopDevice':
             threads.remove(threads[i])
@@ -46,6 +53,13 @@ def status():
         deviceInfo['targetTemp'] = device.getTargetTemp()
         if deviceInfo['status'] == 'running':
             deviceInfo['timer'] = device.getTimer()
+        if deviceInfo['cookScheduled']:
+            total_time = deviceInfo['cookEndStamp'] - deviceInfo['cookStartStamp']
+            elapsed_time = time.mktime(datetime.now().timetuple()) - deviceInfo['cookStartStamp']
+            if elapsed_time < 0:
+                deviceInfo['cookProgress'] = 0
+            else:
+                deviceInfo['cookProgress'] = int((elapsed_time/total_time)*100)
     except Exception as err:
         print err
     return render_template('index.html', device=deviceInfo)
@@ -61,10 +75,15 @@ def schedule():
 
         start_normalized = datetime.combine(date.today(), start_time.time())
         end_normalized = datetime.combine(date.today(), end_time.time())
+        deviceInfo['cookStart'] = start_normalized.strftime("%I:%M %p")
+        deviceInfo['cookEnd'] = end_normalized.strftime("%I:%M %p")
 
         start_stamp = time.mktime(start_normalized.timetuple())
         end_stamp = time.mktime(end_normalized.timetuple())
         now_stamp = time.mktime(datetime.now().timetuple())
+
+        deviceInfo['cookStartStamp'] = start_stamp
+        deviceInfo['cookEndStamp'] = end_stamp
 
         start_delay = start_stamp - now_stamp
         end_delay = end_stamp - now_stamp
@@ -75,13 +94,12 @@ def schedule():
         start_thread.setName('startDevice')
         threads.append(start_thread)
         start_thread.start()
-        print "start thread queued for {} seconds from now".format(start_delay)
+        deviceInfo['cookScheduled'] = True
 
         end_thread = Timer(end_delay, thread_stop_device)
         end_thread.setName('stopDevice')
         threads.append(end_thread)
         end_thread.start()
-        print "stop thread queued for {} seconds from now".format(end_delay)
 
     return redirect(url_for("status"))
 
