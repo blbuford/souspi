@@ -104,5 +104,19 @@ def schedule():
     return redirect(url_for("status"))
 
 
+@app.route('/cancel', methods=['POST'])
+def cancel():
+    global threads
+    if device.getStatus() == 'running':
+        device.stop()
+    if len(threads) > 0:
+        for t in threads:
+            t.cancel()
+        threads = []
+
+    deviceInfo['cookScheduled'] = False
+    return redirect(url_for("status"))
+
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080, debug=True)
