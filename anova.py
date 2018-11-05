@@ -9,6 +9,10 @@ Characteristic UUID: FFE1
 from bluepy import btle
 import time
 
+class TemperatureOutOfRangeException(Exception):
+    pass
+
+
 class AnovaDelegate(btle.DefaultDelegate):
 
     def __init__(self):
@@ -23,7 +27,7 @@ class AnovaDelegate(btle.DefaultDelegate):
         return self.notifications[-1]
 
 
-class AnovaDevice():
+class AnovaDevice:
     def __init__(self, address):
         self.isConnected = False
         self.isRunning = False

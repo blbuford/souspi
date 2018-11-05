@@ -3,11 +3,13 @@ from anovaMock import AnovaDevice
 from datetime import datetime, date
 import time
 from threading import Timer, Thread
+import os
 from bluepy.btle import BTLEException
 
 app = Flask(__name__)
+app.config.from_pyfile(os.path.join(".", "config/web.conf"), silent=False)
 
-device = AnovaDevice("78:A5:04:29:1E:C3")
+device = AnovaDevice(app.config.get("ANOVA_MAC_ADDRESS"))
 threads = []
 
 deviceInfo = {
@@ -68,10 +70,10 @@ def status():
 @app.route('/schedule', methods=['POST'])
 def schedule():
     if request.method == 'POST':
-        start_time = datetime.strptime(request.form['datetimepicker-start'], "%I:%M %p")
-        end_time = datetime.strptime(request.form['datetimepicker-end'], "%I:%M %p")
-        target_text = request.form['temperatureText']
-        target_slider = request.form['temperatureSlider']
+        start_time = datetime.strptime(request.form['datetimepicker_start'], "%I:%M %p")
+        end_time = datetime.strptime(request.form['datetimepicker_end'], "%I:%M %p")
+        target_text = float(request.form['temperatureText'])
+        target_slider = float(request.form['temperatureSlider'])
 
         start_normalized = datetime.combine(date.today(), start_time.time())
         end_normalized = datetime.combine(date.today(), end_time.time())
@@ -81,6 +83,12 @@ def schedule():
         start_stamp = time.mktime(start_normalized.timetuple())
         end_stamp = time.mktime(end_normalized.timetuple())
         now_stamp = time.mktime(datetime.now().timetuple())
+
+        # start it tomorrow if the time given is in the past
+        if start_stamp < 0:
+            start_stamp += 86400
+            end_stamp += 86400
+
 
         deviceInfo['cookStartStamp'] = start_stamp
         deviceInfo['cookEndStamp'] = end_stamp
@@ -119,4 +127,4 @@ def cancel():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8080, debug=True)
+    app.run(host="0.0.0.0", port="8080")

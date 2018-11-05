@@ -1,11 +1,12 @@
 from bluepy.btle import BTLEException
-class Characteristic():
+from anova import TemperatureOutOfRangeException
+
+class Characteristic:
     def write(self, txt):
         raise BTLEException(BTLEException.DISCONNECTED, "Device disconnected")
 
 
-class AnovaDevice():
-
+class AnovaDevice:
     def __init__(self, address):
         self.isConnected = False
         self.isRunning = False
@@ -16,9 +17,9 @@ class AnovaDevice():
         self._targetTemp = 130
         self.connect()
         if self.isConnected:
-            #self.device = self.device.withDelegate(AnovaDelegate())
-            #self.service = self.device.getServiceByUUID("FFE0")
-            #self.characteristic = self.service.getCharacteristics()[0]
+            # self.device = self.device.withDelegate(AnovaDelegate())
+            # self.service = self.device.getServiceByUUID("FFE0")
+            # self.characteristic = self.service.getCharacteristics()[0]
             if 'running' in self.getStatus():
                 self.isRunning = True
         else:
@@ -32,7 +33,7 @@ class AnovaDevice():
 
     def disconnect(self):
         if self.isConnected:
-            #self.device.disconnect()
+            # self.device.disconnect()
             self.isConnected = False
 
     def sendCommand(self, command):
@@ -86,6 +87,9 @@ class AnovaDevice():
         return self._targetTemp
 
     def setTargetTemp(self, temp):
+        if self._units == 'f' and (temp < 32.0 or temp > 210.0):
+            raise TemperatureOutOfRangeException("Temperature is expected to be with 32.0 to 210.0. {} was given.".format(temp))
+
         self._targetTemp = temp
         r = "{}".format(self._targetTemp)
         print "setting target temp to {}".format(r)
