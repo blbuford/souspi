@@ -20,50 +20,68 @@ def test_status(client):
 def test_cancel(client):
     """ Test the cancel scheduled entry endpoint """
 
-    post_schedule(client, "7:52 PM", "8:52 PM", "120")
-    assert len(web.threads) == 2
+    assert web.deviceInfo['cookScheduled'] is False
+    assert web.deviceInfo['status'] == 'stopped'
+    assert web.start_thread is None
+    assert web.stop_thread is None
     post_cancel(client)
     assert web.deviceInfo['cookScheduled'] is False
     assert web.deviceInfo['status'] == 'stopped'
-    assert len(web.threads) == 0
+    assert web.start_thread is None
+    assert web.stop_thread is None
+
+    post_schedule(client, "7:52 PM", "8:52 PM", "120")
+    assert web.start_thread is not None
+    assert web.stop_thread is not None
+    post_cancel(client)
+    assert web.deviceInfo['cookScheduled'] is False
+    assert web.deviceInfo['status'] == 'stopped'
+    assert web.start_thread is None
+    assert web.stop_thread is None
 
     post_schedule(client, "7:52 AM", "8:52 AM", "130")
-    assert len(web.threads) == 1
-    assert web.deviceInfo['status'] == 'running'
+    assert web.start_thread is not None
+    assert web.stop_thread is not None
+    assert web.deviceInfo['status'] == 'stopped'
     post_cancel(client)
     assert web.deviceInfo['cookScheduled'] is False
     assert web.deviceInfo['status'] == 'stopped'
-    assert len(web.threads) == 0
+    assert web.start_thread is None
+    assert web.stop_thread is None
 
     post_schedule(client, "6:52 AM", "7:52 AM", "140")
-    time.sleep(5)
-    assert len(web.threads) == 0
+    assert web.start_thread is not None
+    assert web.stop_thread is not None
     assert web.deviceInfo['status'] == 'stopped'
     post_cancel(client)
     assert web.deviceInfo['cookScheduled'] is False
     assert web.deviceInfo['status'] == 'stopped'
-    assert len(web.threads) == 0
+    assert web.start_thread is None
+    assert web.stop_thread is None
 
 
 @freeze_time('2018-01-14 8:00:00')
 def test_schedule_time(client):
     """ Test the start and end pieces of the schedule function """
 
+    # Normal schedule test
     rv = post_schedule(client, "7:52 PM", "8:52 PM", "120")
     assert b'7:52 PM' in rv.data
     assert b'8:52 PM' in rv.data
     post_cancel(client)
 
+    # Unexpected start time formatting
     with pytest.raises(ValueError):
-        post_schedule(client, "08/20/18 7:52 PM", "8:52 PM", "120")
+        post_schedule(client, "08/20/18 7:52 PM", "8:52 PM", "130")
+        post_cancel(client)
+
+    # Unexpected stop time formatting
+    with pytest.raises(ValueError):
+        post_schedule(client, "7:52 PM", "08/20/18 8:52 PM", "140")
         post_cancel(client)
 
     with pytest.raises(ValueError):
-        post_schedule(client, "7:52 PM", "08/20/18 8:52 PM", "120")
-        post_cancel(client)
-
-    with pytest.raises(ValueError):
-        post_schedule(client, "MALICIOUS THINGS", "08/20/18 8:52 PM", "120")
+        post_schedule(client, "MALICIOUS THINGS", "08/20/18 8:52 PM", "150")
         post_cancel(client)
 
 

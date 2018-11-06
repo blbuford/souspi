@@ -33,7 +33,10 @@ class AnovaDevice:
         self.isRunning = False
         self.address = address
         self.device = None
+        self.service = None
+        self.characteristic = None
         self.connect()
+        self._units = self.getUnits()
         if self.isConnected:
             if 'running' in self.getStatus():
                 self.isRunning = True
@@ -55,7 +58,7 @@ class AnovaDevice:
             self.device.disconnect()
             self.isConnected = False
 
-    def sendCommand(self, command):
+    def send_command(self, command):
         try:
             self.characteristic.write("{}\r".format(command))
         except btle.BTLEException as err:
@@ -89,47 +92,50 @@ class AnovaDevice:
 
     # System and general methods
     def getStatus(self):
-        result = self.sendCommand("status")
+        result = self.send_command("status")
         return result
 
     def start(self):
-        result = self.sendCommand("start")
+        result = self.send_command("start")
         self.isRunning = True
         return result
 
     def stop(self):
-        result = self.sendCommand("stop")
+        result = self.send_command("stop")
         self.isRunning = False
         return result
 
     # Temperature Methods
     def getUnits(self):
-        result = self.sendCommand("read unit")
+        result = self.send_command("read unit")
         return result
 
     def setUnits(self, units):
-        result = self.sendCommand("set unit {}".format(units))
+        result = self.send_command("set unit {}".format(units))
         return result
 
     def getTargetTemp(self):
-        result = self.sendCommand("read set temp")
+        result = self.send_command("read set temp")
         return result
 
     def setTargetTemp(self, temp):
-        result = self.sendCommand("set temp {}".format(temp))
+        if self._units == 'f' and (temp < 32.0 or temp > 210.0):
+            raise TemperatureOutOfRangeException("Temperature is expected to be with 32.0 to 210.0. {} was given.".format(temp))
+
+        result = self.send_command("set temp {}".format(temp))
         return result
 
     def getCurrentTemp(self):
-        result = self.sendCommand("read temp")
+        result = self.send_command("read temp")
         return result
 
     # Timer Methods
     def getTimer(self):
-        result = self.sendCommand("read timer")
+        result = self.send_command("read timer")
         return result
 
     def setTimer(self, time):
-        result = self.sendCommand("set timer {}".format(time))
+        result = self.send_command("set timer {}".format(time))
         return result
 
     # Device must be running before this works
@@ -137,16 +143,16 @@ class AnovaDevice:
         if not self.isRunning:
             raise Exception(("Dude, you cant start a timer without starting "
                             "the device first. Call start() then this!"))
-        result = self.sendCommand("start time")
+        result = self.send_command("start time")
         return result
 
     def stopTimer(self):
-        result = self.sendCommand("stop time")
+        result = self.send_command("stop time")
         return result
 
     # Doesnt work
     def clearAlarm(self):
-        result = self.sendCommand("clear alarm")
+        result = self.send_command("clear alarm")
         return result
 
 

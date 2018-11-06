@@ -36,7 +36,7 @@ class AnovaDevice:
             # self.device.disconnect()
             self.isConnected = False
 
-    def sendCommand(self, command):
+    def send_command(self, command):
         try:
             self.characteristic.write("{}\r".format(command))
         except BTLEException as err:
@@ -101,11 +101,11 @@ class AnovaDevice:
     # -- Unmocked below --
     # Timer Methods
     def getTimer(self):
-        result = 20.3 #self.sendCommand("read timer")
+        result = 20.3 #self.send_command("read timer")
         return result
 
     def setTimer(self, time):
-        result = self.sendCommand("set timer {}".format(time))
+        result = self.send_command("set timer {}".format(time))
         return result
 
     # Device must be running before this works
@@ -113,14 +113,14 @@ class AnovaDevice:
         if not self.isRunning:
             raise Exception(("Dude, you cant start a timer without starting "
                             "the device first. Call start() then this!"))
-        result = self.sendCommand("start time")
+        result = self.send_command("start time")
         return result
 
     def stopTimer(self):
-        result = self.sendCommand("stop time")
+        result = self.send_command("stop time")
         return result
 
     # Doesnt work
     def clearAlarm(self):
-        result = self.sendCommand("clear alarm")
+        result = self.send_command("clear alarm")
         return result
