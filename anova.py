@@ -9,6 +9,7 @@ Characteristic UUID: FFE1
 from bluepy import btle
 import time
 
+
 class TemperatureOutOfRangeException(Exception):
     pass
 

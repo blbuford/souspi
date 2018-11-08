@@ -6,6 +6,11 @@ from threading import Timer, Thread
 import os
 from bluepy.btle import BTLEException
 
+
+class EndBeforeStartTimeException(Exception):
+    pass
+
+
 app = Flask(__name__)
 app.config.from_pyfile(os.path.join(".", "config/web.conf"), silent=False)
 
@@ -71,15 +76,21 @@ def schedule():
         target_text = float(request.form['temperatureText'])
         target_slider = float(request.form['temperatureSlider'])
 
-        if start_time >= datetime.now():
+        if start_time.time() >= datetime.now().time():
             start_normalized = datetime.combine(date.today(), start_time.time())
-            end_normalized = datetime.combine(date.today(), end_time.time())
+            if start_time >= end_time:
+                end_normalized = datetime.combine(date.today() + timedelta(days=1), end_time.time())
+            else:
+                end_normalized = datetime.combine(date.today(), end_time.time())
         else:
             start_normalized = datetime.combine(date.today() + timedelta(days=1), start_time.time())
-            end_normalized = datetime.combine(date.today() + timedelta(days=1), end_time.time())
+            if start_time >= end_time:
+                end_normalized = datetime.combine(date.today() + timedelta(days=2), end_time.time())
+            else:
+                end_normalized = datetime.combine(date.today() + timedelta(days=1), end_time.time())
 
-        deviceInfo['cookStart'] = start_normalized.strftime("%I:%M %p")
-        deviceInfo['cookEnd'] = end_normalized.strftime("%I:%M %p")
+        deviceInfo['cookStart'] = start_normalized.strftime("%b %d %I:%M %p")
+        deviceInfo['cookEnd'] = end_normalized.strftime("%b %d %I:%M %p")
 
         start_stamp = time.mktime(start_normalized.timetuple())
         end_stamp = time.mktime(end_normalized.timetuple())

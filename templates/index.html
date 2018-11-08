@@ -62,6 +62,7 @@
     {% if not device['cookScheduled'] %}
     <section id="scheduler" class="center-block">
         <h3>Schedule</h3><br/>
+
         <form method="post" class="form" action="/schedule">
             <div class="row">
                 <div class="col">
@@ -134,8 +135,9 @@
             <div class="col">
 
                 <div class="progress">
-                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
-                     aria-valuenow="{{ device['cookProgress'] }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ device['cookProgress'] }}%"></div>
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
+                         aria-valuenow="{{ device['cookProgress'] }}" aria-valuemin="0" aria-valuemax="100"
+                         style="width: {{ device['cookProgress'] }}%"></div>
                 </div>
 
             </div>
@@ -144,8 +146,8 @@
             <div class="col">
                 <form class="form" method="post" action="/cancel">
                     <div class="pt-3">
-                     <button type="submit" class="btn btn-danger btn-lg btn-block">Cancel</button>
-                        </div>
+                        <button type="submit" class="btn btn-danger btn-lg btn-block">Cancel</button>
+                    </div>
                 </form>
             </div>
         </div>
