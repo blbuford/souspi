@@ -1,6 +1,6 @@
 import pytest
-import web
-from anova import TemperatureOutOfRangeException
+from souspi import web
+from souspi.exc import TemperatureOutOfRangeException
 from freezegun import freeze_time
 
 
@@ -14,6 +14,18 @@ def client():
 def test_status(client):
     rv = client.get('/')
     assert b'Start Time' in rv.data
+
+
+@freeze_time('2018-01-14 8:00:00')
+def test_cancel_running(client):
+    post_schedule(client, "8:00 AM", "8:52 AM", "120")
+    assert web.start_thread is None
+    assert web.deviceInfo['status'] == 'running'
+    post_cancel(client)
+    assert web.deviceInfo['cookScheduled'] is False
+    assert web.deviceInfo['status'] == 'stopped'
+    assert web.start_thread is None
+    assert web.stop_thread is None
 
 
 @freeze_time('2018-01-14 8:00:00')
@@ -60,6 +72,13 @@ def test_cancel(client):
     assert web.stop_thread is None
 
 
+def test_device_start_stop(client):
+    web.thread_start_device()
+    assert web.deviceInfo['status'] == 'running'
+    web.thread_stop_device()
+    assert web.deviceInfo['status'] == 'stopped'
+
+
 @freeze_time('2018-01-14 8:00:00')
 def test_schedule_time(client):
     """ Test the start and end pieces of the schedule function """
@@ -82,6 +101,12 @@ def test_schedule_time(client):
     rv = post_schedule(client, "7:52 PM", "6:52 PM", "150")
     assert b'Jan 14 07:52 PM' in rv.data
     assert b'Jan 15 06:52 PM' in rv.data
+    post_cancel(client)
+
+    # Start before datetime.now() and end is before start
+    rv = post_schedule(client, "7:52 AM", "6:52 AM", "150")
+    assert b'Jan 15 07:52 AM' in rv.data
+    assert b'Jan 16 06:52 AM' in rv.data
     post_cancel(client)
 
 

@@ -30,7 +30,12 @@
         </div>
     </header>
     <section id="status" style="padding-bottom: 1em">
-
+        {% if device['message'] %}
+        <div class="alert alert-dismissible alert-danger">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+            <strong>Oh snap!</strong> {{ device['message'] }}
+        </div>
+        {% endif %}
         <div class="row">
             <div class="col">
                 <h3>Status</h3>

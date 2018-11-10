@@ -1,9 +1,4 @@
-from bluepy.btle import BTLEException
-from anova import TemperatureOutOfRangeException
-
-class Characteristic:
-    def write(self, txt):
-        raise BTLEException(BTLEException.DISCONNECTED, "Device disconnected")
+import exc
 
 
 class AnovaDevice:
@@ -35,24 +30,6 @@ class AnovaDevice:
         if self.isConnected:
             # self.device.disconnect()
             self.isConnected = False
-
-    def send_command(self, command):
-        try:
-            self.characteristic.write("{}\r".format(command))
-        except BTLEException as err:
-            if err.DISCONNECTED == 1:
-                self.connect()
-                self.characteristic.write("{}\r".format(command))
-        _, result = self.read()
-        return result.rstrip()
-
-    def _fsendCommand(self, command):
-        raise BTLEException(BTLEException.DISCONNECTED, "Device disconnected")
-
-    def read(self):
-        if self.device.waitForNotifications(1.0):
-            return self.device.delegate.getLastNotification()
-        return None
 
     # System and general methods
     def getStatus(self):
@@ -88,7 +65,7 @@ class AnovaDevice:
 
     def setTargetTemp(self, temp):
         if self._units == 'f' and (temp < 32.0 or temp > 210.0):
-            raise TemperatureOutOfRangeException("Temperature is expected to be with 32.0 to 210.0. {} was given.".format(temp))
+            raise exc.TemperatureOutOfRangeException("Temperature is expected to be with 32.0 to 210.0. {} was given.".format(temp))
 
         self._targetTemp = temp
         r = "{}".format(self._targetTemp)
@@ -101,26 +78,4 @@ class AnovaDevice:
     # -- Unmocked below --
     # Timer Methods
     def getTimer(self):
-        result = 20.3 #self.send_command("read timer")
-        return result
-
-    def setTimer(self, time):
-        result = self.send_command("set timer {}".format(time))
-        return result
-
-    # Device must be running before this works
-    def startTimer(self):
-        if not self.isRunning:
-            raise Exception(("Dude, you cant start a timer without starting "
-                            "the device first. Call start() then this!"))
-        result = self.send_command("start time")
-        return result
-
-    def stopTimer(self):
-        result = self.send_command("stop time")
-        return result
-
-    # Doesnt work
-    def clearAlarm(self):
-        result = self.send_command("clear alarm")
-        return result
+        return 0.0

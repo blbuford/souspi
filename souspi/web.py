@@ -1,18 +1,13 @@
-from flask import Flask, render_template, request, redirect, url_for, logging
+from flask import Flask, render_template, request, redirect, url_for
 from anovaMock import AnovaDevice
 from datetime import datetime, date, timedelta
 import time
-from threading import Timer, Thread
+from threading import Timer
 import os
-from bluepy.btle import BTLEException
-
-
-class EndBeforeStartTimeException(Exception):
-    pass
 
 
 app = Flask(__name__)
-app.config.from_pyfile(os.path.join(".", "config/web.conf"), silent=False)
+app.config.from_pyfile(os.path.join("..", "config/web.conf"), silent=False)
 
 device = AnovaDevice(app.config.get("ANOVA_MAC_ADDRESS"))
 
@@ -30,13 +25,15 @@ deviceInfo = {
     'cookEnd': "",
     'cookStartStamp': 0,
     'cookEndStamp': 0,
-    'cookProgress': 0
+    'cookProgress': 0,
+    'message': ''
 }
 
 
 def thread_start_device():
     global start_thread
     device.start()
+    deviceInfo['status'] = device.getStatus()
     start_thread = None
 
 
@@ -44,12 +41,14 @@ def thread_stop_device():
     global stop_thread
     device.stop()
     deviceInfo['cookScheduled'] = False
+    deviceInfo['status'] = device.getStatus()
     stop_thread = None
 
 
 @app.route('/', methods=['GET'])
 def status():
     try:
+        deviceInfo['message'] = ''
         deviceInfo['status'] = device.getStatus()
         deviceInfo['currentTemp'] = device.getCurrentTemp()
         deviceInfo['targetTemp'] = device.getTargetTemp()
@@ -63,7 +62,7 @@ def status():
             else:
                 deviceInfo['cookProgress'] = int((elapsed_time/total_time)*100)
     except Exception as err:
-        print err
+        deviceInfo['message'] = err.message
     return render_template('index.html', device=deviceInfo)
 
 
@@ -73,7 +72,6 @@ def schedule():
     if request.method == 'POST':
         start_time = datetime.strptime(request.form['datetimepicker_start'], "%I:%M %p")
         end_time = datetime.strptime(request.form['datetimepicker_end'], "%I:%M %p")
-        target_text = float(request.form['temperatureText'])
         target_slider = float(request.form['temperatureSlider'])
 
         if start_time.time() >= datetime.now().time():
@@ -133,6 +131,3 @@ def cancel():
     deviceInfo['cookScheduled'] = False
     return redirect(url_for("status"))
 
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port="8080")

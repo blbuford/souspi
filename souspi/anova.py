@@ -1,17 +1,13 @@
-'''
-
+"""
 BlueTooth LE Constants
 Local name: Anova
 Service UUID: FFE0
 Characteristic UUID: FFE1
-'''
+"""
 
 from bluepy import btle
 import time
-
-
-class TemperatureOutOfRangeException(Exception):
-    pass
+import exc
 
 
 class AnovaDelegate(btle.DefaultDelegate):
@@ -121,7 +117,7 @@ class AnovaDevice:
 
     def setTargetTemp(self, temp):
         if self._units == 'f' and (temp < 32.0 or temp > 210.0):
-            raise TemperatureOutOfRangeException("Temperature is expected to be with 32.0 to 210.0. {} was given.".format(temp))
+            raise exc.TemperatureOutOfRangeException("Temperature is expected to be with 32.0 to 210.0. {} was given.".format(temp))
 
         result = self.send_command("set temp {}".format(temp))
         return result
@@ -156,8 +152,3 @@ class AnovaDevice:
         result = self.send_command("clear alarm")
         return result
 
-
-if __name__ == "__main__":
-    dev = AnovaDevice("78:A5:04:29:1E:C3")
-    dev.getVersion()
-    dev.disconnect()
