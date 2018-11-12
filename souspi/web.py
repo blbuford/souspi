@@ -33,7 +33,7 @@ deviceInfo = {
 def thread_start_device():
     global start_thread
     device.start()
-    deviceInfo['status'] = device.getStatus()
+    deviceInfo['status'] = device.status()
     start_thread = None
 
 
@@ -41,7 +41,7 @@ def thread_stop_device():
     global stop_thread
     device.stop()
     deviceInfo['cookScheduled'] = False
-    deviceInfo['status'] = device.getStatus()
+    deviceInfo['status'] = device.status()
     stop_thread = None
 
 
@@ -49,11 +49,11 @@ def thread_stop_device():
 def status():
     try:
         deviceInfo['message'] = ''
-        deviceInfo['status'] = device.getStatus()
-        deviceInfo['currentTemp'] = device.getCurrentTemp()
-        deviceInfo['targetTemp'] = device.getTargetTemp()
+        deviceInfo['status'] = device.status()
+        deviceInfo['currentTemp'] = device.current_temp()
+        deviceInfo['targetTemp'] = device.get_target_temp()
         if deviceInfo['status'] == 'running':
-            deviceInfo['timer'] = device.getTimer()
+            deviceInfo['timer'] = device.get_timer()
         if deviceInfo['cookScheduled']:
             total_time = deviceInfo['cookEndStamp'] - deviceInfo['cookStartStamp']
             elapsed_time = time.mktime(datetime.now().timetuple()) - deviceInfo['cookStartStamp']
@@ -100,7 +100,7 @@ def schedule():
         start_delay = start_stamp - now_stamp
         end_delay = end_stamp - now_stamp
 
-        device.setTargetTemp(target_slider)
+        device.set_target_temp(target_slider)
 
         start_thread = Timer(start_delay, thread_start_device)
         start_thread.setName('startDevice')
@@ -117,7 +117,7 @@ def schedule():
 @app.route('/cancel', methods=['POST'])
 def cancel():
     global start_thread, stop_thread
-    if device.getStatus() == 'running':
+    if device.status() == 'running':
         device.stop()
 
     if start_thread is not None:
