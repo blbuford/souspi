@@ -31,6 +31,8 @@ deviceInfo = {
 
 
 def thread_start_device():
+    """ Called by a Timer thread to start the device when appropriate """
+
     global start_thread
     device.start()
     deviceInfo['status'] = device.status()
@@ -38,6 +40,8 @@ def thread_start_device():
 
 
 def thread_stop_device():
+    """ Called by a Timer thread to stop the device when appropriate """
+
     global stop_thread
     device.stop()
     deviceInfo['cookScheduled'] = False
@@ -47,6 +51,8 @@ def thread_stop_device():
 
 @app.route('/', methods=['GET'])
 def status():
+    """ Displays the main page where a user can schedule the device to start """
+
     try:
         deviceInfo['message'] = ''
         deviceInfo['status'] = device.status()
@@ -68,6 +74,8 @@ def status():
 
 @app.route('/schedule', methods=['POST'])
 def schedule():
+    """ Post endpoint that allows the user to set a schedule of when to start/stop the device """
+
     global start_thread, stop_thread
     if request.method == 'POST':
         start_time = datetime.strptime(request.form['datetimepicker_start'], "%I:%M %p")
@@ -116,6 +124,8 @@ def schedule():
 
 @app.route('/cancel', methods=['POST'])
 def cancel():
+    """ POST endpoint that allows the user to cancel a schedule """
+
     global start_thread, stop_thread
     if device.status() == 'running':
         device.stop()

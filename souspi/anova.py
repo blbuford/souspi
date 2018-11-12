@@ -16,8 +16,8 @@ class AnovaDelegate(btle.DefaultDelegate):
         btle.DefaultDelegate.__init__(self)
         self.notifications = []
 
-    def handleNotification(self, handle, data):
-        self.notifications.append((handle, data))
+    def handleNotification(self, cHandle, data):
+        self.notifications.append((cHandle, data))
         self.notifications = self.notifications[-10:]
 
     def last_notification(self):

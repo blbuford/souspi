@@ -12,12 +12,17 @@ def client():
 
 
 def test_status(client):
+    """ Test that the status page shows and allows a user to setup schedule times """
+
     rv = client.get('/')
     assert b'Start Time' in rv.data
+    assert b'End Time' in rv.data
 
 
 @freeze_time('2018-01-14 8:00:00')
 def test_cancel_running(client):
+    """ Test that the cook can be canceled once its running """
+
     post_schedule(client, "8:00 AM", "8:52 AM", "120")
     assert web.start_thread is None
     assert web.deviceInfo['status'] == 'running'
@@ -73,6 +78,8 @@ def test_cancel(client):
 
 
 def test_device_start_stop(client):
+    """ Test that the thread functions work as intended """
+
     web.thread_start_device()
     assert web.deviceInfo['status'] == 'running'
     web.thread_stop_device()
