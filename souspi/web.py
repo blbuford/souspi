@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for
-from anovaMock import AnovaDevice
+from anova import AnovaDevice
 from datetime import datetime, date, timedelta
 import time
 from threading import Timer
@@ -9,7 +9,7 @@ import os
 app = Flask(__name__)
 app.config.from_pyfile(os.path.join("..", "config/web.conf"), silent=False)
 
-device = AnovaDevice(app.config.get("ANOVA_MAC_ADDRESS"))
+device = None
 
 start_thread = None
 stop_thread = None
@@ -53,7 +53,11 @@ def thread_stop_device():
 def status():
     """ Displays the main page where a user can schedule the device to start """
 
+    global device
     try:
+        if device is None:
+            device = AnovaDevice(app.config.get("ANOVA_MAC_ADDRESS"))
+
         deviceInfo['message'] = ''
         deviceInfo['status'] = device.status()
         deviceInfo['currentTemp'] = device.current_temp()
@@ -141,3 +145,7 @@ def cancel():
     deviceInfo['cookScheduled'] = False
     return redirect(url_for("status"))
 
+
+@app.errorhandler(Exception)
+def handle_error(e):
+    return "Error message {}".format(e.message)

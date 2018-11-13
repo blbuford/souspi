@@ -1,5 +1,8 @@
 include LICENSE
+include run.py
+include anova_scanner.py
 graft souspi/static
 graft souspi/templates
+graft config
 graft tests
 global-exclude *.pyc

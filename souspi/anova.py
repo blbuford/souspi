@@ -41,14 +41,11 @@ class AnovaDevice:
             raise Exception("You screwed up! This thing no connect-y.")
 
     def connect(self):
-        try:
-            self.device = btle.Peripheral(self.address)
-            self.device = self.device.withDelegate(AnovaDelegate())
-            self.isConnected = True
-            self.service = self.device.getServiceByUUID("FFE0")
-            self.characteristic = self.service.getCharacteristics()[0]
-        except btle.BTLEException as err:
-            print err
+        self.device = btle.Peripheral(self.address)
+        self.device = self.device.withDelegate(AnovaDelegate())
+        self.isConnected = True
+        self.service = self.device.getServiceByUUID("FFE0")
+        self.characteristic = self.service.getCharacteristics()[0]
 
     def disconnect(self):
         if self.isConnected:
@@ -56,6 +53,8 @@ class AnovaDevice:
             self.isConnected = False
 
     def send_command(self, command):
+        if self.characteristic is None:
+            raise exc.DeviceNotConnectedException("The Bluetooth characteristic is None. Try calling connect()")
         try:
             self.characteristic.write("{}\r".format(command))
         except btle.BTLEException as err:
@@ -137,8 +136,7 @@ class AnovaDevice:
     # Device must be running before this works
     def start_timer(self):
         if not self.isRunning:
-            raise Exception(("Dude, you cant start a timer without starting "
-                            "the device first. Call start() then this!"))
+            raise exc.DeviceNotRunningException("Start the device first. Call start() then this!")
         result = self.send_command("start time")
         return result
 
